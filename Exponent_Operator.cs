@@ -13,8 +13,7 @@ public class Exponent_Operator : Operator {
     {
         string b = Child1.asString();
         string c = Child2.asString();
-        string s = "* " + b + " " + c;
-        return "exponentstuffhere";
+        return "(" + b + "^" + c + ")";
     }
 
     public override Node differentiate()

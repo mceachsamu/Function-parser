@@ -6,7 +6,7 @@ public class Cosine_Operator : Operator
 {
     public override string asString()
     {
-        return " cos ";
+        return "cos(" + Child1.asString() + ")";
     }
 
     public override float evaluate(float input)

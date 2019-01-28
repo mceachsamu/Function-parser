@@ -6,7 +6,7 @@ public class Sin_Operator : Operator
 {
     public override string asString()
     {
-        return " sin ";
+        return "sin(" + Child1.asString() + ")";
     }
 
     public override float evaluate(float input)

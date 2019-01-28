@@ -3,13 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Parser : MonoBehaviour {
+    //global count is a global variable the program uses to keep track of its position
+    //on the function text
     public int GlobalCount = 0;
     public Node currentNode = null;
     // Use this for initialization
-    //want to avoid using expressions that are undefined at certain points ei 1/x
+    //want to avoid using expressions that are undefined/infinite at certain points ei 1/x, tan(x)
+    //these expressions will cause alot of issues when rendering models from these function
     void Start () {
+        //runTests();
 	}
-   
+
+   //simple comparison script between two strings
     public bool compareString(string s1, string s2)
     {
         char[] li = s1.ToCharArray();
@@ -24,7 +29,7 @@ public class Parser : MonoBehaviour {
         return true;
     }
 
-
+//runs a series of test on multiple functions
     public void runTests()
     {
         currentNode = null;
@@ -223,7 +228,7 @@ public class Parser : MonoBehaviour {
         GlobalCount = 0;
 
     }
-
+    //runs tests on differentiation capabilities
     public void differentiationTests()
     {
         currentNode = null;
@@ -271,16 +276,26 @@ public class Parser : MonoBehaviour {
 
     }
     
-
+    //given a valid function string, returns a node tree representing the function
     public Node ParseNodeTree(string[] fun)
     {
-        if(fun.Length < 3)
+        //for simple functions less than three characters
+        if (fun.Length == 1 && fun[0] != "x")
         {
-            print("less than 3");
-            return null;
+            currentNode = new Operand((float)System.Convert.ToDouble(fun[0]));
+            GlobalCount++;
         }
-        //situation where this is the first iteration
-        if(currentNode == null)
+        else if (fun.Length == 1 && fun[0] == "x")
+        {
+            currentNode = new Variable();
+            GlobalCount++;
+        }
+        else if (fun.Length == 2 && fun[1] != "x" && fun[0] == "-")
+        {
+            currentNode = new Operand((float)System.Convert.ToDouble(fun[1]) * -1);
+            GlobalCount+=2;
+        }//situation where this is the first iteration
+        else if (currentNode == null)
         {
 
             Node Child1 = parseNodeType(fun);
@@ -293,6 +308,8 @@ public class Parser : MonoBehaviour {
            
             Parent.Child1 = Child1;
             Parent.Child2 = Child2;
+            Child1.Parent = Parent;
+            Child2.Parent = Parent;
             currentNode = Parent;
             
         }
@@ -306,14 +323,19 @@ public class Parser : MonoBehaviour {
             {
                 currentNode = currentNode.getHead();
                 currentNode.Parent = Parent;
+
                 Parent.Child1 = currentNode;
                 Parent.Child2 = Child2;
+                Child2.Parent = Parent;
+
             }
             else if(isOperator(Parent) == 2)// * or /
             {
                 Parent.Child1 = currentNode.Child2;
                 Parent.Child2 = Child2;
                 Parent.Parent = currentNode;
+                Child2.Parent = Parent;
+                currentNode.Child2.Parent = Parent;
                 currentNode.Child2 = Parent;
                 currentNode = Parent;
             }
@@ -322,22 +344,26 @@ public class Parser : MonoBehaviour {
         {
             ParseNodeTree(fun);
         }
+
+        Node root = currentNode.getHead();
+        header_node header = new header_node(root);
+        root.Parent = header;
         return currentNode.getHead();
     }
-
+    //resets the parser object, should be done every time a new tree is desired
     public void Reset()
     {
         GlobalCount = 0;
         currentNode = null;
     }
-
+    //returns a node object corrosponding to the character
     public Node parseNodeType(string[] text)
-    { 
-        if(text[GlobalCount] == "*")
+    {
+        if (text[GlobalCount] == "*")
         {
             GlobalCount++;
             return new Multiply_Operator();
-        }else if (text[GlobalCount] == "-")
+        } else if (text[GlobalCount] == "~")//use '~' instead of - to make dealing with double negatives easier
         {
             GlobalCount++;
             return new Minus_Operator();
@@ -365,9 +391,9 @@ public class Parser : MonoBehaviour {
             Node tree = newParse.ParseNodeTree(sss);
             return tree.getHead();
         }
-        else if(text[GlobalCount] == "sin")
+        else if(text[GlobalCount] == "s")
         {
-            GlobalCount+=2;
+            GlobalCount+=4;
             Parser newParse = new Parser();
             string[] sss = getBracketText(text);
             Node tree = newParse.ParseNodeTree(sss);
@@ -375,9 +401,9 @@ public class Parser : MonoBehaviour {
             sinOp.Child1 = tree;
             return sinOp;
         }
-        else if (text[GlobalCount] == "cos")
+        else if (text[GlobalCount] == "c")
         {
-            GlobalCount += 2;
+            GlobalCount += 4;
             Parser newParse = new Parser();
             string[] sss = getBracketText(text);
             Node tree = newParse.ParseNodeTree(sss);
@@ -393,10 +419,20 @@ public class Parser : MonoBehaviour {
         else
         {
             GlobalCount++;
-            return new Operand(castToNumber(text[GlobalCount-1]));
+            if(text[GlobalCount-1] == "-")
+            {
+                GlobalCount++;
+                return new Operand((float)System.Convert.ToDouble(text[GlobalCount-1])*-1);//return negative number
+            }
+            else
+            {
+                return new Operand((float)System.Convert.ToDouble(text[GlobalCount-1]));
+            }
+            //if the text is not a number, then it will throw a conversion error
+            
         }
     }
-
+    //returns the text that exists within brackets
     public string[] getBracketText(string[] text)
     {
         string[] reText = new string[100];
@@ -430,13 +466,8 @@ public class Parser : MonoBehaviour {
         }
         return retext2;
     }
-
-    public float castToNumber(string text)
-    {
-        return (float) System.Convert.ToDouble(text);
-    }
 	
-
+    //checks if the given chracter is an operator, returns its bedmas prioroty or 0 if an operand
     public int isOperator(string text)
     {
         if (text == "+" || text == "-") return 1;
@@ -444,7 +475,7 @@ public class Parser : MonoBehaviour {
         else if (text == "sin" || text == "cos") return 3;
         else return 0;
     }
-
+    //checks if given node object is operator
     public int isOperator(Node n)
     {
         if (n.GetType() == typeof(Add_Operator) || n.GetType() == typeof(Minus_Operator)) return 1;
@@ -452,10 +483,10 @@ public class Parser : MonoBehaviour {
         else if (n.GetType() == typeof(Sin_Operator) || n.GetType() == typeof(Cosine_Operator)) return 3;
         return 0;
     }
-
+    //checks if the given character is an operand
     public bool isOperand(string text)
     {
-        return (text != "*" || text != "-" || text != "+" || text != "/" || text != "sin" || text != "^" || text != "cos");
+        return (text != "*" && text != "-" && text != "+" && text != "/" && text != "sin" && text != "^" && text != "cos");
     }
     
 }

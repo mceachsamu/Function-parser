@@ -14,8 +14,7 @@ public class Add_Operator : Operator
     {
         string b = Child1.asString();
         string c = Child2.asString();
-        string s = "+ " + b + " " + c;
-        return s;
+        return "(" + b + "+" + c + ")";
     }
 
     public override Node differentiate()
@@ -59,5 +58,7 @@ public class Add_Operator : Operator
     {
         throw new System.NotImplementedException();
     }
+
+    
 
 }

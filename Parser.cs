@@ -11,8 +11,14 @@ public class Parser : MonoBehaviour {
     //want to avoid using expressions that are undefined/infinite at certain points ei 1/x, tan(x)
     //these expressions will cause alot of issues when rendering models from these function
     void Start () {
-        //runTests();
+        Debug.Assert(false);
+        runGeneralTests();
 	}
+
+    public Parser()
+    {
+        runGeneralTests();
+    }
 
    //simple comparison script between two strings
     public bool compareString(string s1, string s2)
@@ -276,6 +282,35 @@ public class Parser : MonoBehaviour {
 
     }
     
+    public void runGeneralTests()
+    {
+        Debug.Assert(isNumber("5"));
+
+        Debug.Assert(isNumber("50"));
+
+        Debug.Assert(isNumber("500"));
+
+        GlobalCount = 0;
+        string[] testS = { "5" };
+        Debug.Assert(getOperand(testS) == 5);
+
+        GlobalCount = 0;
+        string[] testS2 = { "50" };
+        Debug.Assert(getOperand(testS2) == 50);
+        GlobalCount = 0;
+        string[] testS3 = { "500" };
+        Debug.Assert(getOperand(testS3) == 500);
+        GlobalCount = 0;
+        string[] testS4 = { "500","+" };
+        Debug.Assert(getOperand(testS3) == 500);
+        GlobalCount = 0;
+        string[] testS5 = { "-10" };
+        Debug.Assert(getOperand(testS5) == -10);
+        GlobalCount = 0;
+        Debug.Assert(ParseNodeTree(testS5).evaluate(0) == -10);
+        GlobalCount = 0;
+        this.Reset();
+    }
     //given a valid function string, returns a node tree representing the function
     public Node ParseNodeTree(string[] fun)
     {
@@ -359,79 +394,125 @@ public class Parser : MonoBehaviour {
     //returns a node object corrosponding to the character
     public Node parseNodeType(string[] text)
     {
-        if (text[GlobalCount] == "*")
-        {
-            GlobalCount++;
-            return new Multiply_Operator();
-        } else if (text[GlobalCount] == "~")//use '~' instead of - to make dealing with double negatives easier
-        {
-            GlobalCount++;
-            return new Minus_Operator();
-        }
-        else if (text[GlobalCount] == "+")
-        {
-            GlobalCount++;
-            return new Add_Operator();
-        }
-        else if (text[GlobalCount] == "/")
-        {
-            GlobalCount++;
-            return new Divide_Operator();
-        }
-        else if(text[GlobalCount] == "x")
-        {
-            GlobalCount++;
-            return new Variable();
-        }
-        else if(text[GlobalCount] == "(")
-        {
-            GlobalCount++;
-            Parser newParse = new Parser();
-            string[] sss = getBracketText(text);
-            Node tree = newParse.ParseNodeTree(sss);
-            return tree.getHead();
-        }
-        else if(text[GlobalCount] == "s")
-        {
-            GlobalCount+=4;
-            Parser newParse = new Parser();
-            string[] sss = getBracketText(text);
-            Node tree = newParse.ParseNodeTree(sss);
-            Sin_Operator sinOp = new Sin_Operator();
-            sinOp.Child1 = tree;
-            return sinOp;
-        }
-        else if (text[GlobalCount] == "c")
-        {
-            GlobalCount += 4;
-            Parser newParse = new Parser();
-            string[] sss = getBracketText(text);
-            Node tree = newParse.ParseNodeTree(sss);
-            Cosine_Operator sinOp = new Cosine_Operator();
-            sinOp.Child1 = tree;
-            return sinOp;
-        }
-        else if (text[GlobalCount] == "^")
-        {
-            GlobalCount++;
-            return new Exponent_Operator();
-        }
-        else
-        {
-            GlobalCount++;
-            if(text[GlobalCount-1] == "-")
+        try {
+            for (int i = 0; i < text.Length; i++)
+            {
+               // print("" + (text[i]));
+            }
+            if (text[GlobalCount] == "*")
             {
                 GlobalCount++;
-                return new Operand((float)System.Convert.ToDouble(text[GlobalCount-1])*-1);//return negative number
+                return new Multiply_Operator();
+            } else if (text[GlobalCount] == "~")//use '~' instead of - to make dealing with double negatives easier
+            {
+                GlobalCount++;
+                return new Minus_Operator();
+            }
+            else if (text[GlobalCount] == "+")
+            {
+                GlobalCount++;
+                return new Add_Operator();
+            }
+            else if (text[GlobalCount] == "/")
+            {
+                GlobalCount++;
+                return new Divide_Operator();
+            }
+            else if (text[GlobalCount] == "x")
+            {
+                GlobalCount++;
+                return new Variable();
+            }
+            else if (text[GlobalCount] == "(")
+            {
+                GlobalCount++;
+                Parser newParse = new Parser();
+                string[] sss = getBracketText(text);
+                Node tree = newParse.ParseNodeTree(sss);
+                return tree.getHead();
+            }
+            else if (text[GlobalCount] == "s")
+            {
+                GlobalCount += 4;
+                Parser newParse = new Parser();
+                string[] sss = getBracketText(text);
+                Node tree = newParse.ParseNodeTree(sss);
+                Sin_Operator sinOp = new Sin_Operator();
+                sinOp.Child1 = tree;
+                return sinOp;
+            }
+            else if (text[GlobalCount] == "c")
+            {
+                GlobalCount += 4;
+                Parser newParse = new Parser();
+                string[] sss = getBracketText(text);
+                Node tree = newParse.ParseNodeTree(sss);
+                Cosine_Operator sinOp = new Cosine_Operator();
+                sinOp.Child1 = tree;
+                return sinOp;
+            }
+            else if (text[GlobalCount] == "^")
+            {
+                GlobalCount++;
+                return new Exponent_Operator();
             }
             else
             {
-                return new Operand((float)System.Convert.ToDouble(text[GlobalCount-1]));
+                if (text[GlobalCount] == "-")
+                {
+
+                    GlobalCount++;
+                    float oper = getOperand(text);
+                    return new Operand(oper * -1);//return negative number
+                }
+                else
+                {
+                    float oper = getOperand(text);
+                    return new Operand(oper);
+                }
+                //if the text is not a number, then it will throw a conversion error
             }
-            //if the text is not a number, then it will throw a conversion error
-            
+        }catch(System.IndexOutOfRangeException e)
+        {
+            print(e);
+            string inputString = "";
+            for(int i = 0; i < text.Length; i++)
+            {
+                inputString = inputString + text[i];
+            }
+            print(inputString + " " + text.Length);
+            return null;
         }
     }
+
+    //want to return the number represented at the current place in text
+    //need to ensure that numbers of more than one digit are passed correctly
+    public float getOperand(string[] text)
+    {
+        string outputString = "";
+        while (GlobalCount < text.Length && isNumber(text[GlobalCount]))
+        {
+            outputString = outputString + text[GlobalCount];
+            GlobalCount++;
+        }
+        return (float)(System.Convert.ToDouble(outputString));
+    }
+    //returns true if given character can be cast to a number
+    public bool isNumber(string s)
+    {
+        bool isNum = true;
+        //print(s);
+        try
+        {
+            System.Convert.ToDouble(s);
+        }
+        catch (System.FormatException e)
+        {
+            isNum = false;
+        }
+        return (isNum);
+    }
+
     //returns the text that exists within brackets
     public string[] getBracketText(string[] text)
     {

@@ -110,20 +110,26 @@ public class Operand : Node
                     op = new Cosine_Operator();
                 }
                 //find which of the parents children is this object
-                
-                if (this.Parent.Child1 == this)
+                try
                 {
-                    this.Parent.Child1 = op;
-                    op.Parent = this.Parent;
-                }
-                else if (this.Parent.Child2 == this)
+                    if (this.Parent.Child1 == this)
+                    {
+                        this.Parent.Child1 = op;
+                        op.Parent = this.Parent;
+                    }
+                    else if (this.Parent.Child2 == this)
+                    {
+                        this.Parent.Child2 = op;
+                        op.Parent = this.Parent;
+                    }
+                    else
+                    {
+                        Debug.Assert(false);
+                    }
+                } catch (System.NullReferenceException e)
                 {
-                    this.Parent.Child2 = op;
-                    op.Parent = this.Parent;
-                }
-                else
-                {
-                    Debug.Assert(false);
+                    Debug.Log("error " + this.getHead().asString());
+                    throw new System.NullReferenceException();
                 }
                 //want to only add one child if its a sin or cosine operator
                 if(op is Cosine_Operator || op is Sin_Operator)

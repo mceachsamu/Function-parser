@@ -46,7 +46,7 @@ public abstract class Node{
         {
             Operand o = new Operand(1);
             newNode.Child1 = o;
-            o.Parent = newNode;
+            newNode.Child1.Parent = newNode;
         }else if (newNode is Operator)
         {
             if(this.Child1 == null)
@@ -67,24 +67,32 @@ public abstract class Node{
         {
            // Debug.Log(this.GetType() + " " + this.Child1.GetType() + this.Child2.GetType());
         }
-        if (this.Parent.Child1 == this)
+        try
         {
-            this.Parent.Child1 = newNode;
-            newNode.Parent = this.Parent;
+            if (this.Parent.Child1 == this)
+            {
+                this.Parent.Child1 = newNode;
+                newNode.Parent = this.Parent;
+            }
+            else if (this.Parent.Child2 == this)
+            {
+                this.Parent.Child2 = newNode;
+                newNode.Parent = this.Parent;
+            }
+            else
+            {
+                // Debug.Log("view from current: " + this.GetType() + " " + Child1.GetType() + " " + Child2.GetType());
+                //Debug.Log("view from parent " + this.Parent.GetType() + " " + this.Parent.Child1.GetType());
+                //Debug.Log("view from children " + this.Child1.Parent.GetType() + " " + this.Child2.Parent.GetType());
+                Debug.Assert(false);
+            }
         }
-        else if (this.Parent.Child2 == this)
+        catch (System.NullReferenceException n)
         {
-            this.Parent.Child2 = newNode;
-            newNode.Parent = this.Parent;
+            Debug.Log("error: " + this.getHead().asString());
+            //throw new System.NullReferenceException();
         }
-        else
-        {
-           // Debug.Log("view from current: " + this.GetType() + " " + Child1.GetType() + " " + Child2.GetType());
-            //Debug.Log("view from parent " + this.Parent.GetType() + " " + this.Parent.Child1.GetType());
-            //Debug.Log("view from children " + this.Child1.Parent.GetType() + " " + this.Child2.Parent.GetType());
-            Debug.Assert(false);
-        }
-        Debug.Assert(newNode.Parent.Child1 == newNode || newNode.Parent.Child2 == newNode);
+       // Debug.Assert(newNode.Parent.Child1 == newNode || newNode.Parent.Child2 == newNode);
         Debug.Assert(newNode.Parent == this.Parent);
         if (newNode.Child1 != null)
         {

@@ -8,12 +8,12 @@ public abstract class Operator : Node {
     {
         Debug.Assert(probability >= 0 && probability <= 1);
 
-        if(probability > Random.Range(0.0f, 1.0f))//change operator to another operator or an operand
+        if(false)//change operator to another operator or an operand
         {
             //Debug.Log("from this view: " + this.Parent.GetType() + " " + this.GetType() + " " + this.Child1.GetType() + " " + this.Child2.GetType());
            // Debug.Log("from parent: " + this.Parent.Child1.GetType());
             //Debug.Log("from child view: " + this.Child2.Parent.GetType() + " " + this.Child2.Parent.GetType());
-            float decide = Random.Range(0.0f, 9.0f);
+            float decide = Random.Range(0.0f, 8.0f);
             if(decide < 0)
             {
                 //Debug.Log("changing operator to add");

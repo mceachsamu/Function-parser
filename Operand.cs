@@ -48,13 +48,12 @@ public class Operand : Node
         if (probability > Random.Range(0.0f, 1.0f))
         {
             float decide = Random.Range(0.0f, 3.0f);
-            
-            if (decide <= 1)//set to a new value operand
+            if (this.Parent.GetType() != typeof(Exponent_Operator))//set to a new value operand
             {
                 //Debug.Log("changing operand to new value");
                 this.Value = Random.Range(-range, range);
             }
-            else if (decide <= 2)//set to variable operand
+            /*else if (decide <= 2)//set to variable operand
             {
                 //Debug.Log("changing operand to variable");
                 if (this.Parent != null)
@@ -143,7 +142,7 @@ public class Operand : Node
                     op.Child1.Parent = op;
                     op.Child2.Parent = op;
                 }
-            }
+            }*/
         }
         if (Child1 != null)
         {

@@ -81,7 +81,7 @@ public abstract class Node{
             }
             else
             {
-                // Debug.Log("view from current: " + this.GetType() + " " + Child1.GetType() + " " + Child2.GetType());
+                //Debug.Log("view from current: " + this.GetType() + " " + Child1.GetType() + " " + Child2.GetType());
                 //Debug.Log("view from parent " + this.Parent.GetType() + " " + this.Parent.Child1.GetType());
                 //Debug.Log("view from children " + this.Child1.Parent.GetType() + " " + this.Child2.Parent.GetType());
                 Debug.Assert(false);

@@ -17,7 +17,7 @@ public class Parser : MonoBehaviour {
 
     public Parser()
     {
-        runGeneralTests();
+       // runGeneralTests();
     }
 
    //simple comparison script between two strings

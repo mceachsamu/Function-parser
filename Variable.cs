@@ -34,7 +34,7 @@ public class Variable : Node
 
     public override void Mutate(int range, float probability)
     {
-        if (probability > Random.Range(0.0f, 1.0f))
+        if (false)
         {
             float decide = Random.Range(0.0f, 3.0f);
             if (decide <= 1)//set to a new value operand
